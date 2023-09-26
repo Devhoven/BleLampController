@@ -45,7 +45,7 @@ namespace BleLampWrapper
         #ifndef USE_LED
         BLEDevice::init("ESP32");
 
-        ServerAddress = new BLEAddress("A4:C1:38:16:0B:C5");
+        ServerAddress = new BLEAddress(BLE_LAMP_MAC_ADDRESS);
         Client = BLEDevice::createClient();
         Client->setClientCallbacks(new MyClientCallback());
 
@@ -60,7 +60,7 @@ namespace BleLampWrapper
             Serial.println(ServiceUUID.toString().c_str());
             return;
         }
-
+        
         // Obtain a reference to the characteristic in the service of the remote BLE server.
         RemoteCharacteristic = RemoteService->getCharacteristic(CharUUID);
         if (RemoteCharacteristic == nullptr) 
@@ -72,9 +72,12 @@ namespace BleLampWrapper
 
         while (!BleLampWrapper::DeviceConnected)
         {
+            Serial.println("Connecting with the lamp...");
             Client->connect(*ServerAddress);
             delay(500); // wait for 500ms before trying again
         }
+
+        Serial.println("Connection to lamp successful");
         #endif
 
         #ifdef USE_LED
@@ -96,7 +99,7 @@ namespace BleLampWrapper
         #endif
 
         #ifdef USE_LED
-        if (brightness < 15)
+        if (brightness < OPERATION_BRIGHTNESS)
             digitalWrite(LED_BUILTIN, LOW);
         else
             digitalWrite(LED_BUILTIN, HIGH);   
@@ -105,11 +108,11 @@ namespace BleLampWrapper
 
 
     // Sets the brightness of the lamp to random values a few times and turns it on afterwards
-    void Flicker()
+    void FlickerOn()
     {
         for (int i = 0; i < 7; i++)
         {
-            SetBrightness(random(30, 69));
+            SetBrightness(random(OPERATION_BRIGHTNESS / 2, (OPERATION_BRIGHTNESS * 3) / 2));
             delay(random(40, 80));
             SetBrightness(0);
             delay(random(10, 30));

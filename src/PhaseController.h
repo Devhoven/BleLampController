@@ -3,6 +3,7 @@
 #include "Definitions.h"
 #include "Phase.h"
 
+// Controls at what time of the day the lamp is going to be turned on and off
 namespace PhaseController
 {
     enum Days
